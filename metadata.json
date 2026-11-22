@@ -1,0 +1,6 @@
+{
+  "name": "BaonBuddy",
+  "description": "Student Allowance & Savings Tracker for managing daily baon, tracking expenses, monitoring savings goals, and building smart budgeting habits.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
