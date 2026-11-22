@@ -1,14 +1,19 @@
 name: Build BaonBuddy APK
 
-on:
+"on":
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch: # Allows manual trigger from the Actions tab
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,25 +23,29 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: "17"
-          distribution: "temurin"
-          cache: "gradle"
 
-      - name: Grant execute permission for Gradle wrapper
-        run: chmod +x ./gradlew
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
 
-      - name: Create .env from .env.example (if needed)
+      - name: Generate temporary debug keystore
         run: |
-          if [ ! -f .env ] && [ -f .env.example ]; then
-            cp .env.example .env
-          fi
+          keytool -genkeypair \
+            -keystore debug.keystore \
+            -storepass android \
+            -keypass android \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
 
-      - name: Assemble Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Debug APK
+        run: gradle assembleDebug
 
-      - name: Upload Debug APK artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: BaonBuddy-debug-apk
           path: app/build/outputs/apk/debug/*.apk
-          if-no-files-error: true
